@@ -53,8 +53,9 @@
       state.swissOut = e.target.checked;
       document.body.classList.toggle("swiss-out", state.swissOut);
       $("#suggestTab").hidden = !state.swissOut;
+      $("#schweizTab").hidden = state.swissOut; // im "Schweiz raus"-Modus uninteressant
       if (state.swissOut) setView("suggest");
-      else if (state.view === "suggest") setView("map");
+      else if (state.view === "suggest" || state.view === "schweiz") setView("map");
       renderAll();
     });
     $("#mergeBtn").addEventListener("click", runMerge);
@@ -154,6 +155,7 @@
     renderStadiums();
     renderGroups();
     renderKnockout();
+    renderSchweiz();
     renderReise();
     renderSuggest();
     updateMarkers();
@@ -531,6 +533,73 @@
   function originLabel(iata) {
     const e = originEntries().find(x => x[0] === iata);
     return e ? e[1] : iata;
+  }
+
+  // ------------------------------------------------ SCHWEIZ (Sechzehntelfinal-Szenarien)
+  // Findet die R32-Spiele für 1./2./3. Platz einer Gruppe (dynamisch aus dem Bracket).
+  function r32GamesForGroup(G) {
+    const r32 = store().data.knockout.filter(k => k.phase === "r32");
+    const winner = r32.find(k => k.home === "1" + G || k.away === "1" + G);
+    const runner = r32.find(k => k.home === "2" + G || k.away === "2" + G);
+    const thirds = r32.filter(k => [k.home, k.away].some(t => /^3[A-L]+$/.test(t) && t.slice(1).indexOf(G) !== -1));
+    return { winner, runner, thirds };
+  }
+  function koWhen(game) {
+    const p = game.date.split("-");
+    const mesz = game.timeMESZ.replace("+1", " (+1)");
+    return p[2] + "." + p[1] + ". · " + game.timeLocal + " Ortszeit · " + mesz + " MESZ";
+  }
+  function scenarioCard(rankLabel, game, oppTok, isCurrent, note) {
+    const s = store().stadiumById(game.venue);
+    const card = el("div", "scn-card" + (isCurrent ? " current" : ""));
+    card.innerHTML =
+      "<div class='scn-rank'>" + rankLabel + (isCurrent ? " <span class='scn-now'>aktuell</span>" : "") + "</div>" +
+      "<div class='scn-body'>" +
+        "<div class='scn-where'>📍 <b>" + esc(s.metro) + "</b> · " + esc(s.name) +
+          " <span class='muted small'>(" + esc(s.country) + " · ✈ " + s.airport + ")</span></div>" +
+        "<div class='scn-when muted'>Spiel " + game.game + " · " + koWhen(game) + "</div>" +
+        "<div class='scn-opp'>Gegner: " + shortSlot(oppTok) + "</div>" +
+        (note ? "<div class='scn-note muted small'>" + note + "</div>" : "") +
+      "</div>";
+    return card;
+  }
+  function renderSchweiz() {
+    const v = $("#view-schweiz"); v.innerHTML = "";
+    const G = "B", code = "SUI";
+    const t = eng().groupTable(G);
+    const myRow = t.rows.find(r => r.code === code);
+    const rank = myRow ? myRow.rank : null;
+
+    const head = el("div", "schweiz-head");
+    head.innerHTML =
+      "<h2>🇨🇭 Schweiz — Weg ins Sechzehntelfinale</h2>" +
+      "<p>Gruppe B · aktuell <b>" + (rank ? rank + ". Platz" : "—") + "</b>" +
+      (myRow ? " <span class='muted'>(" + myRow.pts + " Pkt · " + myRow.played + " Spiele · TD " + (myRow.gd > 0 ? "+" : "") + myRow.gd + ")</span>" : "") +
+      " · " + (t.complete ? "<b>Gruppe abgeschlossen</b>" : "<span class='muted'>provisorisch, noch nicht entschieden</span>") + "</p>" +
+      "<p class='muted small'>Je nach Endplatzierung spielt die Schweiz an einem komplett anderen Ort — das Sechzehntelfinale ist nicht ein fixes Spiel, sondern hängt vom Gruppenplatz ab:</p>";
+    v.appendChild(head);
+
+    const g = r32GamesForGroup(G);
+    const list = el("div", "scn-list");
+    if (g.winner)
+      list.appendChild(scenarioCard("1. Gruppe B — Gruppensieger", g.winner,
+        g.winner.home === "1" + G ? g.winner.away : g.winner.home, rank === 1, null));
+    if (g.runner)
+      list.appendChild(scenarioCard("2. Gruppe B — Gruppenzweiter", g.runner,
+        g.runner.home === "2" + G ? g.runner.away : g.runner.home, rank === 2, null));
+    g.thirds.forEach((gm, i) => {
+      const opp = [gm.home, gm.away].find(tk => !/^3[A-L]+$/.test(tk));
+      const variant = g.thirds.length > 1 ? " (Variante " + (i + 1) + " von " + g.thirds.length + ")" : "";
+      list.appendChild(scenarioCard("3. Gruppe B — als bester Dritter" + variant, gm, opp, rank === 3,
+        "Nur falls die Schweiz unter den 8 besten Gruppendritten ist. " +
+        (g.thirds.length > 1 ? "Welcher der " + g.thirds.length + " Orte es wird, entscheidet die offizielle FIFA-Drittplatzierten-Matrix (abhängig davon, welche Gruppen ihre Dritten stellen)." : "")));
+    });
+    v.appendChild(list);
+
+    const foot = el("p", "muted small schweiz-foot",
+      "Sobald die Gruppenphase entschieden ist, bleibt nur noch das zutreffende Szenario übrig. " +
+      "Die Gegner sind Platzhalter, bis die jeweiligen Plätze feststehen.");
+    v.appendChild(foot);
   }
 
   // ------------------------------------------------ REISE (Explorer / Hub-Hopping)

@@ -156,6 +156,20 @@ body.swiss-out .team.nati { color: var(--eu); font-weight: 700; } /* Nati-Highli
 .sc-actions { display: flex; flex-direction: column; gap: .4rem; }
 .sc-actions .btn { text-align: center; text-decoration: none; }
 
+/* Schweiz — Sechzehntelfinal-Szenarien */
+.schweiz-head h2 { font-size: 1.2rem; }
+.schweiz-head { margin-bottom: .8rem; }
+.scn-list { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.scn-card { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--nati); border-radius: var(--radius); padding: .9rem 1rem; }
+.scn-card.current { border-color: var(--accent); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.scn-rank { font-weight: 700; margin-bottom: .45rem; }
+.scn-now { background: var(--accent); color: #fff; font-size: 10.5px; font-weight: 600; padding: .1rem .45rem; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+.scn-where { margin-bottom: .25rem; }
+.scn-when { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.scn-opp { margin-top: .25rem; }
+.scn-note { margin-top: .45rem; border-top: 1px solid var(--line); padding-top: .4rem; }
+.schweiz-foot { margin-top: .9rem; }
+
 /* Reise (Explorer / Hub-Hopping) */
 .reise-bc { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0 0 .8rem; font-size: 14px; }
 .bc-node { color: var(--eu); text-decoration: none; padding: .15rem .5rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
