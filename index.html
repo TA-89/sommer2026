@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WM 2026 — Reise & Stadien</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo">⚽</span>
+      <div>
+        <h1>WM 2026 — Reise &amp; Stadien</h1>
+        <p class="sub" id="contextLine">USA · Kanada · Mexiko</p>
+      </div>
+    </div>
+    <div class="header-controls">
+      <label class="switch" title="Blendet die Schweiz-Hervorhebung aus und schlägt pro Tag das attraktivste erreichbare Spiel vor">
+        <input type="checkbox" id="swissOutToggle" />
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-label">Schweiz&nbsp;raus</span>
+      </label>
+      <button class="btn" id="mergeBtn" title="Resultate von Wikipedia aktualisieren">↻ Resultate</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="map">Karte</button>
+    <button class="tab" data-view="stadiums">Stadien</button>
+    <button class="tab" data-view="groups">Gruppen</button>
+    <button class="tab" data-view="knockout">K.o.</button>
+    <button class="tab" data-view="reise">Reise</button>
+    <button class="tab" data-view="suggest" id="suggestTab" hidden>Tagesvorschläge</button>
+  </nav>
+
+  <main id="main">
+    <!-- KARTE -->
+    <section class="view" id="view-map">
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div id="mapFallback" class="map-fallback" hidden></div>
+      </div>
+      <aside class="panel" id="timelinePanel">
+        <div class="panel-empty" id="timelineEmpty">
+          <p>📍 Stadion auf der Karte wählen</p>
+          <p class="muted">Zeigt die komplette Belegungs-Timeline — alle Spiele an diesem Ort.</p>
+        </div>
+        <div id="timelineContent" hidden></div>
+      </aside>
+    </section>
+
+    <!-- STADIEN -->
+    <section class="view" id="view-stadiums" hidden></section>
+
+    <!-- GRUPPEN -->
+    <section class="view" id="view-groups" hidden></section>
+
+    <!-- K.O. -->
+    <section class="view" id="view-knockout" hidden></section>
+
+    <!-- REISE (gekettete Route zum Finale) -->
+    <section class="view" id="view-reise" hidden></section>
+
+    <!-- VORSCHLÄGE -->
+    <section class="view" id="view-suggest" hidden></section>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <!-- Daten als globales Objekt (file:// tauglich); fixtures.json bleibt kanonische Quelle -->
+  <script src="data/fixtures.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

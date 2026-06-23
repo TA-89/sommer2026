@@ -1,0 +1,7 @@
+# Dev-only (lokaler Preview-Server, Editor-Configs)
+.claude/
+
+# OS / Editor
+Thumbs.db
+Desktop.ini
+*.log
