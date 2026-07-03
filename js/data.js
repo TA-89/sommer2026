@@ -68,8 +68,15 @@
     return { result: null, source: null };
   }
   function knockoutResult(game) {
+    // Seed-Resultat hat Vorrang (verifiziert), sonst Override (Merge/manuell).
+    const k = DATA && DATA.knockout ? DATA.knockout.find(x => x.game === game) : null;
+    if (k && Array.isArray(k.result)) {
+      return { result: k.result, pens: k.pens || null, aet: !!k.aet, source: k.src || "seed" };
+    }
     const ov = OV.knockout[String(game)];
-    return ov && Array.isArray(ov.result) ? { result: ov.result, source: ov.source || "override" } : { result: null, source: null };
+    return ov && Array.isArray(ov.result)
+      ? { result: ov.result, pens: ov.pens || null, aet: !!ov.aet, source: ov.source || "override" }
+      : { result: null, pens: null, aet: false, source: null };
   }
 
   function setGroupResult(m, result, source) {
@@ -78,10 +85,10 @@
     else { OV.groups[k] = { result: result, source: source || "manuell", ts: nowIso() }; }
     saveOverrides();
   }
-  function setKnockoutResult(game, result, source) {
+  function setKnockoutResult(game, result, source, pens) {
     const g = String(game);
     if (result == null) { delete OV.knockout[g]; }
-    else { OV.knockout[g] = { result: result, source: source || "manuell", ts: nowIso() }; }
+    else { OV.knockout[g] = { result: result, pens: pens || null, source: source || "manuell", ts: nowIso() }; }
     saveOverrides();
   }
   function clearOverrides() { OV = { groups: {}, knockout: {}, sources: {} }; saveOverrides(); }
@@ -189,10 +196,66 @@
     try { return new Date().toISOString().slice(0, 10); } catch (e) { return DATA._readme.seedMeta.asOf; }
   }
 
+  // K.o.-Merge: liest den Knockout-Artikel, matcht Paarungen mit bekannten Codes,
+  // uebernimmt Resultat + Penaltys, wenn date<=heute und noch kein Resultat vorliegt.
+  async function fetchWikitext(page) {
+    const url = "https://en.wikipedia.org/w/api.php?action=parse&prop=wikitext&format=json&formatversion=2&origin=*&page=" + encodeURIComponent(page);
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    return json.parse && json.parse.wikitext ? json.parse.wikitext : "";
+  }
+  function parseKnockoutBoxes(wikitext) {
+    // team1 / score / penaltyscore / team2 in Dokumentreihenfolge
+    const boxes = [];
+    const re = /\|\s*team1\s*=[^\n]*?\|([A-Z]{3})\s*\}\}|\|\s*team2\s*=[^\n]*?\|([A-Z]{3})\s*\}\}|\|\s*score\s*=([^\n]*)|\|\s*penaltyscore\s*=([^\n]*)/g;
+    let m, cur = null;
+    while ((m = re.exec(wikitext)) !== null) {
+      if (m[1]) { cur = { c1: m[1], c2: null, score: null, pens: null }; }
+      else if (m[3] !== undefined && cur) {
+        const all = m[3].match(/(\d+)\s*[–\-−:]\s*(\d+)/g);
+        if (all && all.length) {
+          const last = all[all.length - 1].match(/(\d+)\s*[–\-−:]\s*(\d+)/);
+          cur.score = [parseInt(last[1], 10), parseInt(last[2], 10)];
+        }
+      }
+      else if (m[4] !== undefined && cur) {
+        const p = m[4].match(/(\d+)\s*[–\-−:]\s*(\d+)/);
+        if (p) cur.pens = [parseInt(p[1], 10), parseInt(p[2], 10)];
+      }
+      else if (m[2] && cur) { cur.c2 = m[2]; boxes.push(cur); cur = null; }
+    }
+    return boxes;
+  }
+  async function mergeKnockout(summary) {
+    const today = todayStr();
+    let boxes;
+    try { boxes = parseKnockoutBoxes(await fetchWikitext("2026_FIFA_World_Cup_knockout_stage")); }
+    catch (e) { summary.errors.push("Knockout: " + e.message); return; }
+    for (const k of DATA.knockout) {
+      // nur Paarungen mit zwei bekannten Codes, ohne Resultat, mit Datum <= heute
+      if (knockoutResult(k.game).result) continue;
+      if (k.date > today) continue;
+      if (!/^[A-Z]{3}$/.test(k.home) || !/^[A-Z]{3}$/.test(k.away)) continue;
+      const box = boxes.find(b => (b.c1 === k.home && b.c2 === k.away) || (b.c1 === k.away && b.c2 === k.home));
+      if (!box || !box.score) continue;
+      const flip = box.c1 !== k.home;
+      const res = flip ? [box.score[1], box.score[0]] : box.score;
+      const pens = box.pens ? (flip ? [box.pens[1], box.pens[0]] : box.pens) : null;
+      if (res[0] < 0 || res[0] > 20 || res[1] < 0 || res[1] > 20) continue;
+      setKnockoutResult(k.game, res, "wikipedia", pens);
+      summary.updated++;
+    }
+  }
+
   async function mergeFromWikipedia(onProgress) {
     const today = todayStr();
     const summary = { updated: 0, checked: 0, groups: {}, errors: [] };
-    for (const g of GROUP_IDS) {
+    if (onProgress) onProgress("K.o.-Runde …");
+    await mergeKnockout(summary);
+    // Gruppen nur abfragen, solange dort noch etwas offen ist (spart 12 Requests)
+    const groupsOpen = GROUP_IDS.filter(g => DATA.groups[g].matches.some(m => !effectiveGroupResult(m).result));
+    for (const g of groupsOpen) {
       if (onProgress) onProgress("Gruppe " + g + " …");
       let boxes;
       try {

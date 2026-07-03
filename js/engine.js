@@ -143,6 +143,10 @@
 
     function token(tok, game) {
       let m;
+      // Direkter FIFA-Code (Paarung steht fest) -> final
+      if (/^[A-Z]{3}$/.test(tok) && S().teamByCode(tok) && S().teamByCode(tok).group) {
+        return { code: tok, status: "final", label: tok };
+      }
       if ((m = /^1([A-L])$/.exec(tok))) return rankedTeam(m[1], 1);
       if ((m = /^2([A-L])$/.exec(tok))) return rankedTeam(m[1], 2);
       if (/^3[A-L]+$/.test(tok)) {
@@ -164,12 +168,20 @@
       if (!k) return cache[key];
       const home = token(k.home, game);
       const away = token(k.away, game);
-      const r = S().knockoutResult(game).result;
+      const kr = S().knockoutResult(game);
+      const r = kr.result;
       let out;
       if (r && home.code && away.code) {
-        const homeWins = r[0] > r[1]; // (Elfmeter werden vereinfachend ignoriert)
-        const pick = (homeWins === wantWinner) ? home : away;
-        out = { code: pick.code, status: worst("final", home.status, away.status), label: pick.label };
+        // Sieger: regulaeres Resultat; bei Unentschieden entscheidet das Penaltyschiessen
+        let homeWins;
+        if (r[0] !== r[1]) homeWins = r[0] > r[1];
+        else if (kr.pens) homeWins = kr.pens[0] > kr.pens[1];
+        if (homeWins === undefined) {
+          out = { code: null, status: "open", label: (wantWinner ? "Sieger " : "Verlierer ") + game };
+        } else {
+          const pick = (homeWins === wantWinner) ? home : away;
+          out = { code: pick.code, status: worst("final", home.status, away.status), label: pick.label };
+        }
       } else {
         out = { code: null, status: "open", label: (wantWinner ? "Sieger " : "Verlierer ") + game };
       }

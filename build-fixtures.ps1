@@ -5,7 +5,7 @@
 $ErrorActionPreference = "Stop"
 $dir = Join-Path $PSScriptRoot "data"
 $jsonPath = Join-Path $dir "fixtures.json"
-$json = Get-Content $jsonPath -Raw
+$json = Get-Content $jsonPath -Raw -Encoding UTF8
 # Validierung
 $null = $json | ConvertFrom-Json
 $out = "/* AUTO-GENERIERT aus fixtures.json - nicht direkt bearbeiten. Quelle bleibt fixtures.json. */`r`nwindow.FIXTURES = " + $json + ";`r`n"

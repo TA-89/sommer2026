@@ -1,21 +1,23 @@
-﻿/* AUTO-GENERIERT aus fixtures.json — nicht direkt bearbeiten. Quelle bleibt fixtures.json. */
+﻿/* AUTO-GENERIERT aus fixtures.json - nicht direkt bearbeiten. Quelle bleibt fixtures.json. */
 window.FIXTURES = {
   "_readme": {
-    "purpose": "Verlaessliche Seed-Basis fuer die WM-2026-Reise-/Stadion-App. Statisches Geruest: Stadien, Auslosung, kompletter Spielplan (104 Spiele), K.o.-Bracket mit Platzhaltern.",
+    "purpose": "Verlaessliche Seed-Basis fuer die WM-2026-Reise-App. Statisches Geruest + verifizierte Resultate: Stadien, kompletter Spielplan (104 Spiele), K.o.-Bracket.",
     "conventions": {
-      "venue": "Verweist auf stadiums[].id (Slug). Aufloesung des Stadions ueber dieses id.",
-      "result": "[heim, gast] wenn verifiziert gespielt; null = noch nicht gespielt ODER nicht verifiziert -> NICHT raten.",
+      "venue": "Verweist auf stadiums[].id (Slug).",
+      "result": "[heim, gast] wenn verifiziert gespielt; null = noch nicht gespielt -> NICHT raten.",
+      "pens": "[heim, gast] Penaltyschiessen, nur wenn result unentschieden.",
+      "aet": "true = nach Verlaengerung.",
       "timeLocal": "Anstoss in Stadion-Ortszeit, 24h 'HH:MM'.",
-      "timeMESZ": "Anstoss in MESZ (UTC+2), 24h 'HH:MM'. Suffix '+1' = faellt auf den naechsten Kalendertag (relativ zu 'date').",
+      "timeMESZ": "Anstoss in MESZ (UTC+2). Suffix '+1' = naechster Kalendertag relativ zu 'date'.",
       "tzOffsetToMESZ": "Stunden, die zu timeLocal ADDIERT werden, um MESZ zu erhalten.",
-      "placeholders": "1X=Sieger Gruppe X, 2X=Zweiter Gruppe X, 3ABCDF=bester Dritter aus Gruppenset {A,B,C,D,F}, Wnn=Sieger Spiel nn, Lnn=Verlierer Spiel nn.",
+      "knockoutTeams": "home/away sind echte FIFA-Codes sobald bekannt; sonst Platzhalter Wnn/Lnn. homeSlot/awaySlot dokumentieren den urspruenglichen Bracket-Slot.",
       "src": "Quelle eines verifizierten Datensatzes."
     },
     "seedMeta": {
-      "source": "en.wikipedia.org/wiki/2026_FIFA_World_Cup (+ Gruppen- und K.o.-Unterartikel)",
-      "asOf": "2026-06-22",
-      "builtBy": "Claude Code Seed-Build",
-      "note": "Resultate Stand 22.06.2026 (vor den Spielen des 22.06.). Spiele mit date>=2026-06-22 ohne abgeschlossenes Resultat => result=null. Online-Merge soll Resultate nur ergaenzen, venue immer aus Seed behalten."
+      "source": "en.wikipedia.org/wiki/2026_FIFA_World_Cup (+ Gruppen- und K.o.-Unterartikel), fifa.com Match Centre",
+      "asOf": "2026-07-03",
+      "builtBy": "Claude Code Seed-Build v2",
+      "note": "Gruppenphase komplett (72/72). Sechzehntelfinals 73-85 gespielt; 86-88 am Abend des 03.07. Schweiz = Sieger Gruppe B, 2:0 vs Algerien, Achtelfinale 07.07. Vancouver."
     }
   },
 
@@ -26,15 +28,15 @@ window.FIXTURES = {
     "groupsCount": 12,
     "start": "2026-06-11",
     "end": "2026-07-19",
-    "thirdPlaceRule": "Top 2 jeder Gruppe + 8 beste Gruppendritte erreichen das Sechzehntelfinale (Round of 32).",
+    "thirdPlaceRule": "Top 2 jeder Gruppe + 8 beste Gruppendritte erreichten das Sechzehntelfinale.",
     "phases": [
-      { "id": "group", "label": "Gruppenphase",                  "from": "2026-06-11", "to": "2026-06-27" },
-      { "id": "r32",   "label": "Sechzehntelfinale (Round of 32)", "from": "2026-06-28", "to": "2026-07-03" },
+      { "id": "group", "label": "Gruppenphase",                    "from": "2026-06-11", "to": "2026-06-27" },
+      { "id": "r32",   "label": "Sechzehntelfinale",               "from": "2026-06-28", "to": "2026-07-03" },
       { "id": "r16",   "label": "Achtelfinale",                    "from": "2026-07-04", "to": "2026-07-07" },
       { "id": "qf",    "label": "Viertelfinale",                   "from": "2026-07-09", "to": "2026-07-11" },
       { "id": "sf",    "label": "Halbfinale",                      "from": "2026-07-14", "to": "2026-07-15" },
-      { "id": "third", "label": "Spiel um Platz 3",               "from": "2026-07-18", "to": "2026-07-18" },
-      { "id": "final", "label": "Finale",                         "from": "2026-07-19", "to": "2026-07-19" }
+      { "id": "third", "label": "Spiel um Platz 3",                "from": "2026-07-18", "to": "2026-07-18" },
+      { "id": "final", "label": "Finale",                          "from": "2026-07-19", "to": "2026-07-19" }
     ]
   },
 
@@ -63,281 +65,257 @@ window.FIXTURES = {
   },
 
   "teams": [
-    { "code": "MEX", "name": "Mexiko",                 "group": "A", "confed": "CONCACAF", "priorityRank": 9 },
-    { "code": "RSA", "name": "Suedafrika",             "group": "A", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "KOR", "name": "Suedkorea",              "group": "A", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "CZE", "name": "Tschechien",             "group": "A", "confed": "UEFA",     "priorityRank": 6 },
+    { "code": "MEX", "name": "Mexiko",                 "group": "A", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇲🇽" },
+    { "code": "RSA", "name": "Suedafrika",             "group": "A", "confed": "CAF",      "priorityRank": 9, "flag": "🇿🇦" },
+    { "code": "KOR", "name": "Suedkorea",              "group": "A", "confed": "AFC",      "priorityRank": 9, "flag": "🇰🇷" },
+    { "code": "CZE", "name": "Tschechien",             "group": "A", "confed": "UEFA",     "priorityRank": 6, "flag": "🇨🇿" },
 
-    { "code": "CAN", "name": "Kanada",                 "group": "B", "confed": "CONCACAF", "priorityRank": 9 },
-    { "code": "BIH", "name": "Bosnien-Herzegowina",    "group": "B", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "QAT", "name": "Katar",                  "group": "B", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "SUI", "name": "Schweiz",                "group": "B", "confed": "UEFA",     "priorityRank": 1 },
+    { "code": "CAN", "name": "Kanada",                 "group": "B", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇨🇦" },
+    { "code": "BIH", "name": "Bosnien-Herzegowina",    "group": "B", "confed": "UEFA",     "priorityRank": 6, "flag": "🇧🇦" },
+    { "code": "QAT", "name": "Katar",                  "group": "B", "confed": "AFC",      "priorityRank": 9, "flag": "🇶🇦" },
+    { "code": "SUI", "name": "Schweiz",                "group": "B", "confed": "UEFA",     "priorityRank": 1, "flag": "🇨🇭" },
 
-    { "code": "BRA", "name": "Brasilien",              "group": "C", "confed": "CONMEBOL", "priorityRank": 9 },
-    { "code": "MAR", "name": "Marokko",                "group": "C", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "HAI", "name": "Haiti",                  "group": "C", "confed": "CONCACAF", "priorityRank": 9 },
-    { "code": "SCO", "name": "Schottland",             "group": "C", "confed": "UEFA",     "priorityRank": 4 },
+    { "code": "BRA", "name": "Brasilien",              "group": "C", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇧🇷" },
+    { "code": "MAR", "name": "Marokko",                "group": "C", "confed": "CAF",      "priorityRank": 9, "flag": "🇲🇦" },
+    { "code": "HAI", "name": "Haiti",                  "group": "C", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇭🇹" },
+    { "code": "SCO", "name": "Schottland",             "group": "C", "confed": "UEFA",     "priorityRank": 4, "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
 
-    { "code": "USA", "name": "USA",                    "group": "D", "confed": "CONCACAF", "priorityRank": 9 },
-    { "code": "PAR", "name": "Paraguay",               "group": "D", "confed": "CONMEBOL", "priorityRank": 9 },
-    { "code": "AUS", "name": "Australien",             "group": "D", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "TUR", "name": "Tuerkei",                "group": "D", "confed": "UEFA",     "priorityRank": 6 },
+    { "code": "USA", "name": "USA",                    "group": "D", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇺🇸" },
+    { "code": "PAR", "name": "Paraguay",               "group": "D", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇵🇾" },
+    { "code": "AUS", "name": "Australien",             "group": "D", "confed": "AFC",      "priorityRank": 9, "flag": "🇦🇺" },
+    { "code": "TUR", "name": "Tuerkei",                "group": "D", "confed": "UEFA",     "priorityRank": 6, "flag": "🇹🇷" },
 
-    { "code": "GER", "name": "Deutschland",            "group": "E", "confed": "UEFA",     "priorityRank": 2 },
-    { "code": "CUW", "name": "Curacao",                "group": "E", "confed": "CONCACAF", "priorityRank": 9 },
-    { "code": "CIV", "name": "Elfenbeinkueste",        "group": "E", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "ECU", "name": "Ecuador",                "group": "E", "confed": "CONMEBOL", "priorityRank": 9 },
+    { "code": "GER", "name": "Deutschland",            "group": "E", "confed": "UEFA",     "priorityRank": 2, "flag": "🇩🇪" },
+    { "code": "CUW", "name": "Curacao",                "group": "E", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇨🇼" },
+    { "code": "CIV", "name": "Elfenbeinkueste",        "group": "E", "confed": "CAF",      "priorityRank": 9, "flag": "🇨🇮" },
+    { "code": "ECU", "name": "Ecuador",                "group": "E", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇪🇨" },
 
-    { "code": "NED", "name": "Niederlande",            "group": "F", "confed": "UEFA",     "priorityRank": 3 },
-    { "code": "JPN", "name": "Japan",                  "group": "F", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "SWE", "name": "Schweden",               "group": "F", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "TUN", "name": "Tunesien",               "group": "F", "confed": "CAF",      "priorityRank": 9 },
+    { "code": "NED", "name": "Niederlande",            "group": "F", "confed": "UEFA",     "priorityRank": 3, "flag": "🇳🇱" },
+    { "code": "JPN", "name": "Japan",                  "group": "F", "confed": "AFC",      "priorityRank": 9, "flag": "🇯🇵" },
+    { "code": "SWE", "name": "Schweden",               "group": "F", "confed": "UEFA",     "priorityRank": 6, "flag": "🇸🇪" },
+    { "code": "TUN", "name": "Tunesien",               "group": "F", "confed": "CAF",      "priorityRank": 9, "flag": "🇹🇳" },
 
-    { "code": "BEL", "name": "Belgien",                "group": "G", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "EGY", "name": "Aegypten",               "group": "G", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "IRN", "name": "Iran",                   "group": "G", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "NZL", "name": "Neuseeland",             "group": "G", "confed": "OFC",      "priorityRank": 9 },
+    { "code": "BEL", "name": "Belgien",                "group": "G", "confed": "UEFA",     "priorityRank": 6, "flag": "🇧🇪" },
+    { "code": "EGY", "name": "Aegypten",               "group": "G", "confed": "CAF",      "priorityRank": 9, "flag": "🇪🇬" },
+    { "code": "IRN", "name": "Iran",                   "group": "G", "confed": "AFC",      "priorityRank": 9, "flag": "🇮🇷" },
+    { "code": "NZL", "name": "Neuseeland",             "group": "G", "confed": "OFC",      "priorityRank": 9, "flag": "🇳🇿" },
 
-    { "code": "ESP", "name": "Spanien",                "group": "H", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "CPV", "name": "Kap Verde",              "group": "H", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "KSA", "name": "Saudi-Arabien",          "group": "H", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "URU", "name": "Uruguay",                "group": "H", "confed": "CONMEBOL", "priorityRank": 9 },
+    { "code": "ESP", "name": "Spanien",                "group": "H", "confed": "UEFA",     "priorityRank": 6, "flag": "🇪🇸" },
+    { "code": "CPV", "name": "Kap Verde",              "group": "H", "confed": "CAF",      "priorityRank": 9, "flag": "🇨🇻" },
+    { "code": "KSA", "name": "Saudi-Arabien",          "group": "H", "confed": "AFC",      "priorityRank": 9, "flag": "🇸🇦" },
+    { "code": "URU", "name": "Uruguay",                "group": "H", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇺🇾" },
 
-    { "code": "FRA", "name": "Frankreich",             "group": "I", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "SEN", "name": "Senegal",                "group": "I", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "IRQ", "name": "Irak",                   "group": "I", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "NOR", "name": "Norwegen",               "group": "I", "confed": "UEFA",     "priorityRank": 6 },
+    { "code": "FRA", "name": "Frankreich",             "group": "I", "confed": "UEFA",     "priorityRank": 6, "flag": "🇫🇷" },
+    { "code": "SEN", "name": "Senegal",                "group": "I", "confed": "CAF",      "priorityRank": 9, "flag": "🇸🇳" },
+    { "code": "IRQ", "name": "Irak",                   "group": "I", "confed": "AFC",      "priorityRank": 9, "flag": "🇮🇶" },
+    { "code": "NOR", "name": "Norwegen",               "group": "I", "confed": "UEFA",     "priorityRank": 6, "flag": "🇳🇴" },
 
-    { "code": "ARG", "name": "Argentinien",            "group": "J", "confed": "CONMEBOL", "priorityRank": 9 },
-    { "code": "ALG", "name": "Algerien",               "group": "J", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "AUT", "name": "Oesterreich",            "group": "J", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "JOR", "name": "Jordanien",              "group": "J", "confed": "AFC",      "priorityRank": 9 },
+    { "code": "ARG", "name": "Argentinien",            "group": "J", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇦🇷" },
+    { "code": "ALG", "name": "Algerien",               "group": "J", "confed": "CAF",      "priorityRank": 9, "flag": "🇩🇿" },
+    { "code": "AUT", "name": "Oesterreich",            "group": "J", "confed": "UEFA",     "priorityRank": 6, "flag": "🇦🇹" },
+    { "code": "JOR", "name": "Jordanien",              "group": "J", "confed": "AFC",      "priorityRank": 9, "flag": "🇯🇴" },
 
-    { "code": "POR", "name": "Portugal",               "group": "K", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "COD", "name": "DR Kongo",               "group": "K", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "UZB", "name": "Usbekistan",             "group": "K", "confed": "AFC",      "priorityRank": 9 },
-    { "code": "COL", "name": "Kolumbien",              "group": "K", "confed": "CONMEBOL", "priorityRank": 9 },
+    { "code": "POR", "name": "Portugal",               "group": "K", "confed": "UEFA",     "priorityRank": 6, "flag": "🇵🇹" },
+    { "code": "COD", "name": "DR Kongo",               "group": "K", "confed": "CAF",      "priorityRank": 9, "flag": "🇨🇩" },
+    { "code": "UZB", "name": "Usbekistan",             "group": "K", "confed": "AFC",      "priorityRank": 9, "flag": "🇺🇿" },
+    { "code": "COL", "name": "Kolumbien",              "group": "K", "confed": "CONMEBOL", "priorityRank": 9, "flag": "🇨🇴" },
 
-    { "code": "ENG", "name": "England",                "group": "L", "confed": "UEFA",     "priorityRank": 5 },
-    { "code": "CRO", "name": "Kroatien",               "group": "L", "confed": "UEFA",     "priorityRank": 6 },
-    { "code": "GHA", "name": "Ghana",                  "group": "L", "confed": "CAF",      "priorityRank": 9 },
-    { "code": "PAN", "name": "Panama",                 "group": "L", "confed": "CONCACAF", "priorityRank": 9 }
+    { "code": "ENG", "name": "England",                "group": "L", "confed": "UEFA",     "priorityRank": 5, "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+    { "code": "CRO", "name": "Kroatien",               "group": "L", "confed": "UEFA",     "priorityRank": 6, "flag": "🇭🇷" },
+    { "code": "GHA", "name": "Ghana",                  "group": "L", "confed": "CAF",      "priorityRank": 9, "flag": "🇬🇭" },
+    { "code": "PAN", "name": "Panama",                 "group": "L", "confed": "CONCACAF", "priorityRank": 9, "flag": "🇵🇦" }
   ],
 
   "groups": {
     "A": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["MEX", "RSA"],
       "matches": [
-        { "date": "2026-06-11", "home": "MEX", "away": "RSA", "result": [2,0], "venue": "azteca", "timeLocal": "13:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-11", "home": "KOR", "away": "CZE", "result": [2,1], "venue": "akron",  "timeLocal": "20:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
+        { "date": "2026-06-11", "home": "MEX", "away": "RSA", "result": [2,0], "venue": "azteca",  "timeLocal": "13:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-11", "home": "KOR", "away": "CZE", "result": [2,1], "venue": "akron",   "timeLocal": "20:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
         { "date": "2026-06-18", "home": "CZE", "away": "RSA", "result": [1,1], "venue": "mercedes","timeLocal": "12:00", "timeMESZ": "18:00", "src": "wikipedia" },
-        { "date": "2026-06-18", "home": "MEX", "away": "KOR", "result": [1,0], "venue": "akron",  "timeLocal": "19:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
-        { "date": "2026-06-24", "home": "CZE", "away": "MEX", "result": null,  "venue": "azteca", "timeLocal": "19:00", "timeMESZ": "03:00+1" },
-        { "date": "2026-06-24", "home": "RSA", "away": "KOR", "result": null,  "venue": "bbva",   "timeLocal": "19:00", "timeMESZ": "03:00+1" }
+        { "date": "2026-06-18", "home": "MEX", "away": "KOR", "result": [1,0], "venue": "akron",   "timeLocal": "19:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
+        { "date": "2026-06-24", "home": "CZE", "away": "MEX", "result": [0,3], "venue": "azteca",  "timeLocal": "19:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
+        { "date": "2026-06-24", "home": "RSA", "away": "KOR", "result": [1,0], "venue": "bbva",    "timeLocal": "19:00", "timeMESZ": "03:00+1", "src": "wikipedia" }
       ]
     },
     "B": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["SUI", "CAN", "BIH"],
       "matches": [
-        { "date": "2026-06-12", "home": "CAN", "away": "BIH", "result": [1,1], "venue": "bmo",   "timeLocal": "15:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-13", "home": "QAT", "away": "SUI", "result": [1,1], "venue": "levis", "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-18", "home": "SUI", "away": "BIH", "result": [4,1], "venue": "sofi",  "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-18", "home": "CAN", "away": "QAT", "result": [6,0], "venue": "bcplace","timeLocal": "15:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
-        { "date": "2026-06-24", "home": "SUI", "away": "CAN", "result": null,  "venue": "bcplace","timeLocal": "12:00", "timeMESZ": "21:00" },
-        { "date": "2026-06-24", "home": "BIH", "away": "QAT", "result": null,  "venue": "lumen", "timeLocal": "12:00", "timeMESZ": "21:00" }
+        { "date": "2026-06-12", "home": "CAN", "away": "BIH", "result": [1,1], "venue": "bmo",     "timeLocal": "15:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-13", "home": "QAT", "away": "SUI", "result": [1,1], "venue": "levis",   "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-18", "home": "SUI", "away": "BIH", "result": [4,1], "venue": "sofi",    "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-18", "home": "CAN", "away": "QAT", "result": [6,0], "venue": "bcplace", "timeLocal": "15:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
+        { "date": "2026-06-24", "home": "SUI", "away": "CAN", "result": [2,1], "venue": "bcplace", "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-24", "home": "BIH", "away": "QAT", "result": [3,1], "venue": "lumen",   "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" }
       ]
     },
     "C": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["BRA", "MAR"],
       "matches": [
         { "date": "2026-06-13", "home": "BRA", "away": "MAR", "result": [1,1], "venue": "metlife", "timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
         { "date": "2026-06-13", "home": "HAI", "away": "SCO", "result": [0,1], "venue": "gillette","timeLocal": "21:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
         { "date": "2026-06-19", "home": "SCO", "away": "MAR", "result": [0,1], "venue": "gillette","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
         { "date": "2026-06-19", "home": "BRA", "away": "HAI", "result": [3,0], "venue": "lincoln", "timeLocal": "20:30", "timeMESZ": "02:30+1", "src": "wikipedia" },
-        { "date": "2026-06-24", "home": "SCO", "away": "BRA", "result": null,  "venue": "hardrock","timeLocal": "18:00", "timeMESZ": "00:00+1" },
-        { "date": "2026-06-24", "home": "MAR", "away": "HAI", "result": null,  "venue": "mercedes","timeLocal": "18:00", "timeMESZ": "00:00+1" }
+        { "date": "2026-06-24", "home": "SCO", "away": "BRA", "result": [0,3], "venue": "hardrock","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
+        { "date": "2026-06-24", "home": "MAR", "away": "HAI", "result": [4,2], "venue": "mercedes","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" }
       ]
     },
     "D": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["USA", "AUS", "PAR"],
       "matches": [
-        { "date": "2026-06-12", "home": "USA", "away": "PAR", "result": [4,1], "venue": "sofi",   "timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
-        { "date": "2026-06-13", "home": "AUS", "away": "TUR", "result": [2,0], "venue": "bcplace","timeLocal": "21:00", "timeMESZ": "06:00+1", "src": "wikipedia" },
-        { "date": "2026-06-19", "home": "USA", "away": "AUS", "result": [2,0], "venue": "lumen",  "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-19", "home": "TUR", "away": "PAR", "result": [0,1], "venue": "levis",  "timeLocal": "20:00", "timeMESZ": "05:00+1", "src": "wikipedia" },
-        { "date": "2026-06-25", "home": "TUR", "away": "USA", "result": null,  "venue": "sofi",   "timeLocal": "19:00", "timeMESZ": "04:00+1" },
-        { "date": "2026-06-25", "home": "PAR", "away": "AUS", "result": null,  "venue": "levis",  "timeLocal": "19:00", "timeMESZ": "04:00+1" }
+        { "date": "2026-06-12", "home": "USA", "away": "PAR", "result": [4,1], "venue": "sofi",    "timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
+        { "date": "2026-06-13", "home": "AUS", "away": "TUR", "result": [2,0], "venue": "bcplace", "timeLocal": "21:00", "timeMESZ": "06:00+1", "src": "wikipedia" },
+        { "date": "2026-06-19", "home": "USA", "away": "AUS", "result": [2,0], "venue": "lumen",   "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-19", "home": "TUR", "away": "PAR", "result": [0,1], "venue": "levis",   "timeLocal": "20:00", "timeMESZ": "05:00+1", "src": "wikipedia" },
+        { "date": "2026-06-25", "home": "TUR", "away": "USA", "result": [3,2], "venue": "sofi",    "timeLocal": "19:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
+        { "date": "2026-06-25", "home": "PAR", "away": "AUS", "result": [0,0], "venue": "levis",   "timeLocal": "19:00", "timeMESZ": "04:00+1", "src": "wikipedia" }
       ]
     },
     "E": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["GER", "CIV", "ECU"],
       "matches": [
         { "date": "2026-06-14", "home": "GER", "away": "CUW", "result": [7,1], "venue": "nrg",     "timeLocal": "12:00", "timeMESZ": "19:00", "src": "wikipedia" },
         { "date": "2026-06-14", "home": "CIV", "away": "ECU", "result": [1,0], "venue": "lincoln", "timeLocal": "19:00", "timeMESZ": "01:00+1", "src": "wikipedia" },
         { "date": "2026-06-20", "home": "GER", "away": "CIV", "result": [2,1], "venue": "bmo",     "timeLocal": "16:00", "timeMESZ": "22:00", "src": "wikipedia" },
         { "date": "2026-06-20", "home": "ECU", "away": "CUW", "result": [0,0], "venue": "arrowhead","timeLocal": "19:00","timeMESZ": "02:00+1", "src": "wikipedia" },
-        { "date": "2026-06-25", "home": "CUW", "away": "CIV", "result": null,  "venue": "lincoln", "timeLocal": "16:00", "timeMESZ": "22:00" },
-        { "date": "2026-06-25", "home": "ECU", "away": "GER", "result": null,  "venue": "metlife", "timeLocal": "16:00", "timeMESZ": "22:00" }
+        { "date": "2026-06-25", "home": "CUW", "away": "CIV", "result": [0,2], "venue": "lincoln", "timeLocal": "16:00", "timeMESZ": "22:00", "src": "wikipedia" },
+        { "date": "2026-06-25", "home": "ECU", "away": "GER", "result": [2,1], "venue": "metlife", "timeLocal": "16:00", "timeMESZ": "22:00", "src": "wikipedia" }
       ]
     },
     "F": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["NED", "JPN", "SWE"],
       "matches": [
         { "date": "2026-06-14", "home": "NED", "away": "JPN", "result": [2,2], "venue": "att",     "timeLocal": "15:00", "timeMESZ": "22:00", "src": "wikipedia" },
         { "date": "2026-06-14", "home": "SWE", "away": "TUN", "result": [5,1], "venue": "bbva",    "timeLocal": "20:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
         { "date": "2026-06-20", "home": "NED", "away": "SWE", "result": [5,1], "venue": "nrg",     "timeLocal": "12:00", "timeMESZ": "19:00", "src": "wikipedia" },
         { "date": "2026-06-20", "home": "TUN", "away": "JPN", "result": [0,4], "venue": "bbva",    "timeLocal": "22:00", "timeMESZ": "06:00+1", "src": "wikipedia" },
-        { "date": "2026-06-25", "home": "JPN", "away": "SWE", "result": null,  "venue": "att",     "timeLocal": "18:00", "timeMESZ": "01:00+1" },
-        { "date": "2026-06-25", "home": "TUN", "away": "NED", "result": null,  "venue": "arrowhead","timeLocal": "18:00","timeMESZ": "01:00+1" }
+        { "date": "2026-06-25", "home": "JPN", "away": "SWE", "result": [1,1], "venue": "att",     "timeLocal": "18:00", "timeMESZ": "01:00+1", "src": "wikipedia" },
+        { "date": "2026-06-25", "home": "TUN", "away": "NED", "result": [1,3], "venue": "arrowhead","timeLocal": "18:00","timeMESZ": "01:00+1", "src": "wikipedia" }
       ]
     },
     "G": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["BEL", "EGY"],
       "matches": [
-        { "date": "2026-06-15", "home": "BEL", "away": "EGY", "result": [1,1], "venue": "lumen",  "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-15", "home": "IRN", "away": "NZL", "result": [2,2], "venue": "sofi",   "timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
-        { "date": "2026-06-21", "home": "BEL", "away": "IRN", "result": [0,0], "venue": "sofi",   "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
-        { "date": "2026-06-21", "home": "NZL", "away": "EGY", "result": [1,3], "venue": "bcplace","timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
-        { "date": "2026-06-26", "home": "EGY", "away": "IRN", "result": null,  "venue": "lumen",  "timeLocal": "20:00", "timeMESZ": "05:00+1" },
-        { "date": "2026-06-26", "home": "NZL", "away": "BEL", "result": null,  "venue": "bcplace","timeLocal": "20:00", "timeMESZ": "05:00+1" }
+        { "date": "2026-06-15", "home": "BEL", "away": "EGY", "result": [1,1], "venue": "lumen",   "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-15", "home": "IRN", "away": "NZL", "result": [2,2], "venue": "sofi",    "timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
+        { "date": "2026-06-21", "home": "BEL", "away": "IRN", "result": [0,0], "venue": "sofi",    "timeLocal": "12:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-21", "home": "NZL", "away": "EGY", "result": [1,3], "venue": "bcplace", "timeLocal": "18:00", "timeMESZ": "03:00+1", "src": "wikipedia" },
+        { "date": "2026-06-26", "home": "EGY", "away": "IRN", "result": [1,1], "venue": "lumen",   "timeLocal": "20:00", "timeMESZ": "05:00+1", "src": "wikipedia" },
+        { "date": "2026-06-26", "home": "NZL", "away": "BEL", "result": [1,5], "venue": "bcplace", "timeLocal": "20:00", "timeMESZ": "05:00+1", "src": "wikipedia" }
       ]
     },
     "H": {
-      "matchesPlayed": 4, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["ESP", "CPV"],
       "matches": [
         { "date": "2026-06-15", "home": "ESP", "away": "CPV", "result": [0,0], "venue": "mercedes","timeLocal": "12:00", "timeMESZ": "18:00", "src": "wikipedia" },
         { "date": "2026-06-15", "home": "KSA", "away": "URU", "result": [1,1], "venue": "hardrock","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
         { "date": "2026-06-21", "home": "ESP", "away": "KSA", "result": [4,0], "venue": "mercedes","timeLocal": "12:00", "timeMESZ": "18:00", "src": "wikipedia" },
         { "date": "2026-06-21", "home": "URU", "away": "CPV", "result": [2,2], "venue": "hardrock","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
-        { "date": "2026-06-26", "home": "CPV", "away": "KSA", "result": null,  "venue": "nrg",     "timeLocal": "19:00", "timeMESZ": "02:00+1" },
-        { "date": "2026-06-26", "home": "URU", "away": "ESP", "result": null,  "venue": "akron",   "timeLocal": "18:00", "timeMESZ": "02:00+1" }
+        { "date": "2026-06-26", "home": "CPV", "away": "KSA", "result": [0,0], "venue": "nrg",     "timeLocal": "19:00", "timeMESZ": "02:00+1", "src": "wikipedia" },
+        { "date": "2026-06-26", "home": "URU", "away": "ESP", "result": [0,1], "venue": "akron",   "timeLocal": "18:00", "timeMESZ": "02:00+1", "src": "wikipedia" }
       ]
     },
     "I": {
-      "matchesPlayed": 2, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["FRA", "NOR", "SEN"],
       "matches": [
         { "date": "2026-06-16", "home": "FRA", "away": "SEN", "result": [3,1], "venue": "metlife", "timeLocal": "15:00", "timeMESZ": "21:00", "src": "wikipedia" },
         { "date": "2026-06-16", "home": "IRQ", "away": "NOR", "result": [1,4], "venue": "gillette","timeLocal": "18:00", "timeMESZ": "00:00+1", "src": "wikipedia" },
-        { "date": "2026-06-22", "home": "FRA", "away": "IRQ", "result": null,  "venue": "lincoln", "timeLocal": "17:00", "timeMESZ": "23:00" },
-        { "date": "2026-06-22", "home": "NOR", "away": "SEN", "result": null,  "venue": "metlife", "timeLocal": "20:00", "timeMESZ": "02:00+1" },
-        { "date": "2026-06-26", "home": "NOR", "away": "FRA", "result": null,  "venue": "gillette","timeLocal": "15:00", "timeMESZ": "21:00" },
-        { "date": "2026-06-26", "home": "SEN", "away": "IRQ", "result": null,  "venue": "bmo",     "timeLocal": "15:00", "timeMESZ": "21:00" }
+        { "date": "2026-06-22", "home": "FRA", "away": "IRQ", "result": [3,0], "venue": "lincoln", "timeLocal": "17:00", "timeMESZ": "23:00", "src": "wikipedia" },
+        { "date": "2026-06-22", "home": "NOR", "away": "SEN", "result": [3,2], "venue": "metlife", "timeLocal": "20:00", "timeMESZ": "02:00+1", "src": "wikipedia" },
+        { "date": "2026-06-26", "home": "NOR", "away": "FRA", "result": [1,4], "venue": "gillette","timeLocal": "15:00", "timeMESZ": "21:00", "src": "wikipedia" },
+        { "date": "2026-06-26", "home": "SEN", "away": "IRQ", "result": [5,0], "venue": "bmo",     "timeLocal": "15:00", "timeMESZ": "21:00", "src": "wikipedia" }
       ]
     },
     "J": {
-      "matchesPlayed": 2, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["ARG", "AUT", "ALG"],
       "matches": [
         { "date": "2026-06-16", "home": "ARG", "away": "ALG", "result": [3,0], "venue": "arrowhead","timeLocal": "20:00","timeMESZ": "03:00+1", "src": "wikipedia" },
         { "date": "2026-06-16", "home": "AUT", "away": "JOR", "result": [3,1], "venue": "levis",   "timeLocal": "21:00", "timeMESZ": "06:00+1", "src": "wikipedia" },
-        { "date": "2026-06-22", "home": "ARG", "away": "AUT", "result": null,  "venue": "att",     "timeLocal": "12:00", "timeMESZ": "19:00" },
-        { "date": "2026-06-22", "home": "JOR", "away": "ALG", "result": null,  "venue": "levis",   "timeLocal": "20:00", "timeMESZ": "05:00+1" },
-        { "date": "2026-06-27", "home": "ALG", "away": "AUT", "result": null,  "venue": "arrowhead","timeLocal": "21:00","timeMESZ": "04:00+1" },
-        { "date": "2026-06-27", "home": "JOR", "away": "ARG", "result": null,  "venue": "att",     "timeLocal": "21:00", "timeMESZ": "04:00+1" }
+        { "date": "2026-06-22", "home": "ARG", "away": "AUT", "result": [2,0], "venue": "att",     "timeLocal": "12:00", "timeMESZ": "19:00", "src": "wikipedia" },
+        { "date": "2026-06-22", "home": "JOR", "away": "ALG", "result": [1,2], "venue": "levis",   "timeLocal": "20:00", "timeMESZ": "05:00+1", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "ALG", "away": "AUT", "result": [3,3], "venue": "arrowhead","timeLocal": "21:00","timeMESZ": "04:00+1", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "JOR", "away": "ARG", "result": [1,3], "venue": "att",     "timeLocal": "21:00", "timeMESZ": "04:00+1", "src": "wikipedia" }
       ]
     },
     "K": {
-      "matchesPlayed": 2, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["COL", "POR", "COD"],
       "matches": [
         { "date": "2026-06-17", "home": "POR", "away": "COD", "result": [1,1], "venue": "nrg",     "timeLocal": "12:00", "timeMESZ": "19:00", "src": "wikipedia" },
         { "date": "2026-06-17", "home": "UZB", "away": "COL", "result": [1,3], "venue": "azteca",  "timeLocal": "20:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
-        { "date": "2026-06-23", "home": "POR", "away": "UZB", "result": null,  "venue": "nrg",     "timeLocal": "12:00", "timeMESZ": "19:00" },
-        { "date": "2026-06-23", "home": "COL", "away": "COD", "result": null,  "venue": "akron",   "timeLocal": "20:00", "timeMESZ": "04:00+1" },
-        { "date": "2026-06-27", "home": "COL", "away": "POR", "result": null,  "venue": "hardrock","timeLocal": "19:30", "timeMESZ": "01:30+1" },
-        { "date": "2026-06-27", "home": "COD", "away": "UZB", "result": null,  "venue": "mercedes","timeLocal": "19:30", "timeMESZ": "01:30+1" }
+        { "date": "2026-06-23", "home": "POR", "away": "UZB", "result": [5,0], "venue": "nrg",     "timeLocal": "12:00", "timeMESZ": "19:00", "src": "wikipedia" },
+        { "date": "2026-06-23", "home": "COL", "away": "COD", "result": [1,0], "venue": "akron",   "timeLocal": "20:00", "timeMESZ": "04:00+1", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "COL", "away": "POR", "result": [0,0], "venue": "hardrock","timeLocal": "19:30", "timeMESZ": "01:30+1", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "COD", "away": "UZB", "result": [3,1], "venue": "mercedes","timeLocal": "19:30", "timeMESZ": "01:30+1", "src": "wikipedia" }
       ]
     },
     "L": {
-      "matchesPlayed": 2, "matchday3Open": true, "qualified": [],
+      "matchesPlayed": 6, "matchday3Open": false, "qualified": ["ENG", "CRO", "GHA"],
       "matches": [
         { "date": "2026-06-17", "home": "ENG", "away": "CRO", "result": [4,2], "venue": "att",     "timeLocal": "15:00", "timeMESZ": "22:00", "src": "wikipedia" },
         { "date": "2026-06-17", "home": "GHA", "away": "PAN", "result": [1,0], "venue": "bmo",     "timeLocal": "19:00", "timeMESZ": "01:00+1", "src": "wikipedia" },
-        { "date": "2026-06-23", "home": "ENG", "away": "GHA", "result": null,  "venue": "gillette","timeLocal": "16:00", "timeMESZ": "22:00" },
-        { "date": "2026-06-23", "home": "PAN", "away": "CRO", "result": null,  "venue": "bmo",     "timeLocal": "19:00", "timeMESZ": "01:00+1" },
-        { "date": "2026-06-27", "home": "PAN", "away": "ENG", "result": null,  "venue": "metlife", "timeLocal": "17:00", "timeMESZ": "23:00" },
-        { "date": "2026-06-27", "home": "CRO", "away": "GHA", "result": null,  "venue": "lincoln", "timeLocal": "17:00", "timeMESZ": "23:00" }
+        { "date": "2026-06-23", "home": "ENG", "away": "GHA", "result": [0,0], "venue": "gillette","timeLocal": "16:00", "timeMESZ": "22:00", "src": "wikipedia" },
+        { "date": "2026-06-23", "home": "PAN", "away": "CRO", "result": [0,1], "venue": "bmo",     "timeLocal": "19:00", "timeMESZ": "01:00+1", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "PAN", "away": "ENG", "result": [0,2], "venue": "metlife", "timeLocal": "17:00", "timeMESZ": "23:00", "src": "wikipedia" },
+        { "date": "2026-06-27", "home": "CRO", "away": "GHA", "result": [2,1], "venue": "lincoln", "timeLocal": "17:00", "timeMESZ": "23:00", "src": "wikipedia" }
       ]
     }
   },
 
   "knockout": [
-    { "game": 73, "phase": "r32", "date": "2026-06-28", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",    "home": "2A", "away": "2B" },
-    { "game": 74, "phase": "r32", "date": "2026-06-29", "timeLocal": "16:30", "timeMESZ": "22:30",   "venue": "gillette","home": "1E", "away": "3ABCDF" },
-    { "game": 75, "phase": "r32", "date": "2026-06-29", "timeLocal": "19:00", "timeMESZ": "03:00+1", "venue": "bbva",    "home": "1F", "away": "2C" },
-    { "game": 76, "phase": "r32", "date": "2026-06-29", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "nrg",     "home": "1C", "away": "2F" },
-    { "game": 77, "phase": "r32", "date": "2026-06-30", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "metlife", "home": "1I", "away": "3CDFGH" },
-    { "game": 78, "phase": "r32", "date": "2026-06-30", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "att",     "home": "2E", "away": "2I" },
-    { "game": 79, "phase": "r32", "date": "2026-06-30", "timeLocal": "19:00", "timeMESZ": "03:00+1", "venue": "azteca",  "home": "1A", "away": "3CEFHI" },
-    { "game": 80, "phase": "r32", "date": "2026-07-01", "timeLocal": "12:00", "timeMESZ": "18:00",   "venue": "mercedes","home": "1L", "away": "3EHIJK" },
-    { "game": 81, "phase": "r32", "date": "2026-07-01", "timeLocal": "17:00", "timeMESZ": "02:00+1", "venue": "levis",   "home": "1D", "away": "3BEFIJ" },
-    { "game": 82, "phase": "r32", "date": "2026-07-01", "timeLocal": "13:00", "timeMESZ": "22:00",   "venue": "lumen",   "home": "1G", "away": "3AEHIJ" },
-    { "game": 83, "phase": "r32", "date": "2026-07-02", "timeLocal": "19:00", "timeMESZ": "01:00+1", "venue": "bmo",     "home": "2K", "away": "2L" },
-    { "game": 84, "phase": "r32", "date": "2026-07-02", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",    "home": "1H", "away": "2J" },
-    { "game": 85, "phase": "r32", "date": "2026-07-02", "timeLocal": "20:00", "timeMESZ": "05:00+1", "venue": "bcplace", "home": "1B", "away": "3EFGIJ" },
-    { "game": 86, "phase": "r32", "date": "2026-07-03", "timeLocal": "18:00", "timeMESZ": "00:00+1", "venue": "hardrock","home": "1J", "away": "2H" },
-    { "game": 87, "phase": "r32", "date": "2026-07-03", "timeLocal": "20:30", "timeMESZ": "03:30+1", "venue": "arrowhead","home": "1K","away": "3DEIJL" },
-    { "game": 88, "phase": "r32", "date": "2026-07-03", "timeLocal": "13:00", "timeMESZ": "20:00",   "venue": "att",     "home": "2D", "away": "2G" },
+    { "game": 73, "phase": "r32", "date": "2026-06-28", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",     "home": "RSA", "away": "CAN", "homeSlot": "2A", "awaySlot": "2B", "result": [0,1], "src": "wikipedia" },
+    { "game": 74, "phase": "r32", "date": "2026-06-29", "timeLocal": "16:30", "timeMESZ": "22:30",   "venue": "gillette", "home": "GER", "away": "PAR", "homeSlot": "1E", "awaySlot": "3ABCDF", "result": [1,1], "pens": [3,4], "aet": true, "src": "wikipedia" },
+    { "game": 75, "phase": "r32", "date": "2026-06-29", "timeLocal": "19:00", "timeMESZ": "03:00+1", "venue": "bbva",     "home": "NED", "away": "MAR", "homeSlot": "1F", "awaySlot": "2C", "result": [1,1], "pens": [2,3], "aet": true, "src": "wikipedia" },
+    { "game": 76, "phase": "r32", "date": "2026-06-29", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "nrg",      "home": "BRA", "away": "JPN", "homeSlot": "1C", "awaySlot": "2F", "result": [2,1], "src": "wikipedia" },
+    { "game": 77, "phase": "r32", "date": "2026-06-30", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "metlife",  "home": "FRA", "away": "SWE", "homeSlot": "1I", "awaySlot": "3CDFGH", "result": [3,0], "src": "wikipedia" },
+    { "game": 78, "phase": "r32", "date": "2026-06-30", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "att",      "home": "CIV", "away": "NOR", "homeSlot": "2E", "awaySlot": "2I", "result": [1,2], "src": "wikipedia" },
+    { "game": 79, "phase": "r32", "date": "2026-06-30", "timeLocal": "19:00", "timeMESZ": "03:00+1", "venue": "azteca",   "home": "MEX", "away": "ECU", "homeSlot": "1A", "awaySlot": "3CEFHI", "result": [2,0], "src": "wikipedia" },
+    { "game": 80, "phase": "r32", "date": "2026-07-01", "timeLocal": "12:00", "timeMESZ": "18:00",   "venue": "mercedes", "home": "ENG", "away": "COD", "homeSlot": "1L", "awaySlot": "3EHIJK", "result": [2,1], "src": "wikipedia" },
+    { "game": 81, "phase": "r32", "date": "2026-07-01", "timeLocal": "17:00", "timeMESZ": "02:00+1", "venue": "levis",    "home": "USA", "away": "BIH", "homeSlot": "1D", "awaySlot": "3BEFIJ", "result": [2,0], "src": "wikipedia" },
+    { "game": 82, "phase": "r32", "date": "2026-07-01", "timeLocal": "13:00", "timeMESZ": "22:00",   "venue": "lumen",    "home": "BEL", "away": "SEN", "homeSlot": "1G", "awaySlot": "3AEHIJ", "result": [3,2], "aet": true, "src": "wikipedia" },
+    { "game": 83, "phase": "r32", "date": "2026-07-02", "timeLocal": "19:00", "timeMESZ": "01:00+1", "venue": "bmo",      "home": "POR", "away": "CRO", "homeSlot": "2K", "awaySlot": "2L", "result": [2,1], "src": "wikipedia" },
+    { "game": 84, "phase": "r32", "date": "2026-07-02", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",     "home": "ESP", "away": "AUT", "homeSlot": "1H", "awaySlot": "2J", "result": [3,0], "src": "wikipedia" },
+    { "game": 85, "phase": "r32", "date": "2026-07-02", "timeLocal": "20:00", "timeMESZ": "05:00+1", "venue": "bcplace",  "home": "SUI", "away": "ALG", "homeSlot": "1B", "awaySlot": "3EFGIJ", "result": [2,0], "src": "fifa.com" },
+    { "game": 86, "phase": "r32", "date": "2026-07-03", "timeLocal": "18:00", "timeMESZ": "00:00+1", "venue": "hardrock", "home": "ARG", "away": "CPV", "homeSlot": "1J", "awaySlot": "2H", "result": null },
+    { "game": 87, "phase": "r32", "date": "2026-07-03", "timeLocal": "20:30", "timeMESZ": "03:30+1", "venue": "arrowhead","home": "COL", "away": "GHA", "homeSlot": "1K", "awaySlot": "3DEIJL", "result": null },
+    { "game": 88, "phase": "r32", "date": "2026-07-03", "timeLocal": "13:00", "timeMESZ": "20:00",   "venue": "att",      "home": "AUS", "away": "EGY", "homeSlot": "2D", "awaySlot": "2G", "result": null },
 
-    { "game": 89, "phase": "r16", "date": "2026-07-04", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "lincoln", "home": "W74", "away": "W77" },
-    { "game": 90, "phase": "r16", "date": "2026-07-04", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "nrg",     "home": "W73", "away": "W75" },
-    { "game": 91, "phase": "r16", "date": "2026-07-05", "timeLocal": "16:00", "timeMESZ": "22:00",   "venue": "metlife", "home": "W76", "away": "W78" },
-    { "game": 92, "phase": "r16", "date": "2026-07-05", "timeLocal": "18:00", "timeMESZ": "02:00+1", "venue": "azteca",  "home": "W79", "away": "W80" },
-    { "game": 93, "phase": "r16", "date": "2026-07-06", "timeLocal": "14:00", "timeMESZ": "21:00",   "venue": "att",     "home": "W83", "away": "W84" },
-    { "game": 94, "phase": "r16", "date": "2026-07-06", "timeLocal": "17:00", "timeMESZ": "02:00+1", "venue": "lumen",   "home": "W81", "away": "W82" },
-    { "game": 95, "phase": "r16", "date": "2026-07-07", "timeLocal": "12:00", "timeMESZ": "18:00",   "venue": "mercedes","home": "W86", "away": "W88" },
-    { "game": 96, "phase": "r16", "date": "2026-07-07", "timeLocal": "13:00", "timeMESZ": "22:00",   "venue": "bcplace", "home": "W85", "away": "W87" },
+    { "game": 89, "phase": "r16", "date": "2026-07-04", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "lincoln",  "home": "PAR", "away": "FRA", "homeSlot": "W74", "awaySlot": "W77", "result": null },
+    { "game": 90, "phase": "r16", "date": "2026-07-04", "timeLocal": "12:00", "timeMESZ": "19:00",   "venue": "nrg",      "home": "CAN", "away": "MAR", "homeSlot": "W73", "awaySlot": "W75", "result": null },
+    { "game": 91, "phase": "r16", "date": "2026-07-05", "timeLocal": "16:00", "timeMESZ": "22:00",   "venue": "metlife",  "home": "BRA", "away": "NOR", "homeSlot": "W76", "awaySlot": "W78", "result": null },
+    { "game": 92, "phase": "r16", "date": "2026-07-05", "timeLocal": "18:00", "timeMESZ": "02:00+1", "venue": "azteca",   "home": "MEX", "away": "ENG", "homeSlot": "W79", "awaySlot": "W80", "result": null },
+    { "game": 93, "phase": "r16", "date": "2026-07-06", "timeLocal": "14:00", "timeMESZ": "21:00",   "venue": "att",      "home": "POR", "away": "ESP", "homeSlot": "W83", "awaySlot": "W84", "result": null },
+    { "game": 94, "phase": "r16", "date": "2026-07-06", "timeLocal": "17:00", "timeMESZ": "02:00+1", "venue": "lumen",    "home": "USA", "away": "BEL", "homeSlot": "W81", "awaySlot": "W82", "result": null },
+    { "game": 95, "phase": "r16", "date": "2026-07-07", "timeLocal": "12:00", "timeMESZ": "18:00",   "venue": "mercedes", "home": "W86", "away": "W88", "homeSlot": "W86", "awaySlot": "W88", "result": null },
+    { "game": 96, "phase": "r16", "date": "2026-07-07", "timeLocal": "13:00", "timeMESZ": "22:00",   "venue": "bcplace",  "home": "SUI", "away": "W87", "homeSlot": "W85", "awaySlot": "W87", "result": null },
 
-    { "game": 97,  "phase": "qf", "date": "2026-07-09", "timeLocal": "16:00", "timeMESZ": "22:00",   "venue": "gillette","home": "W89", "away": "W90" },
-    { "game": 98,  "phase": "qf", "date": "2026-07-10", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",    "home": "W93", "away": "W94" },
-    { "game": 99,  "phase": "qf", "date": "2026-07-11", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "hardrock","home": "W91", "away": "W92" },
-    { "game": 100, "phase": "qf", "date": "2026-07-11", "timeLocal": "20:00", "timeMESZ": "03:00+1", "venue": "arrowhead","home": "W95","away": "W96" },
+    { "game": 97,  "phase": "qf", "date": "2026-07-09", "timeLocal": "16:00", "timeMESZ": "22:00",   "venue": "gillette", "home": "W89", "away": "W90", "homeSlot": "W89", "awaySlot": "W90", "result": null },
+    { "game": 98,  "phase": "qf", "date": "2026-07-10", "timeLocal": "12:00", "timeMESZ": "21:00",   "venue": "sofi",     "home": "W93", "away": "W94", "homeSlot": "W93", "awaySlot": "W94", "result": null },
+    { "game": 99,  "phase": "qf", "date": "2026-07-11", "timeLocal": "17:00", "timeMESZ": "23:00",   "venue": "hardrock", "home": "W91", "away": "W92", "homeSlot": "W91", "awaySlot": "W92", "result": null },
+    { "game": 100, "phase": "qf", "date": "2026-07-11", "timeLocal": "20:00", "timeMESZ": "03:00+1", "venue": "arrowhead","home": "W95", "away": "W96", "homeSlot": "W95", "awaySlot": "W96", "result": null },
 
-    { "game": 101, "phase": "sf", "date": "2026-07-14", "timeLocal": "14:00", "timeMESZ": "21:00",   "venue": "att",     "home": "W97", "away": "W98" },
-    { "game": 102, "phase": "sf", "date": "2026-07-15", "timeLocal": "15:00", "timeMESZ": "21:00",   "venue": "mercedes","home": "W99", "away": "W100" },
+    { "game": 101, "phase": "sf", "date": "2026-07-14", "timeLocal": "14:00", "timeMESZ": "21:00",   "venue": "att",      "home": "W97", "away": "W98", "homeSlot": "W97", "awaySlot": "W98", "result": null },
+    { "game": 102, "phase": "sf", "date": "2026-07-15", "timeLocal": "15:00", "timeMESZ": "21:00",   "venue": "mercedes", "home": "W99", "away": "W100", "homeSlot": "W99", "awaySlot": "W100", "result": null },
 
-    { "game": 103, "phase": "third", "date": "2026-07-18", "timeLocal": "17:00", "timeMESZ": "23:00", "venue": "hardrock","home": "L101", "away": "L102" },
-    { "game": 104, "phase": "final", "date": "2026-07-19", "timeLocal": "15:00", "timeMESZ": "21:00", "venue": "metlife", "home": "W101", "away": "W102" }
+    { "game": 103, "phase": "third", "date": "2026-07-18", "timeLocal": "17:00", "timeMESZ": "23:00", "venue": "hardrock","home": "L101", "away": "L102", "homeSlot": "L101", "awaySlot": "L102", "result": null },
+    { "game": 104, "phase": "final", "date": "2026-07-19", "timeLocal": "15:00", "timeMESZ": "21:00", "venue": "metlife", "home": "W101", "away": "W102", "homeSlot": "W101", "awaySlot": "W102", "result": null }
   ],
 
   "knockoutPlaceholderLegend": {
-    "1X": "Sieger der Gruppe X (aus berechneter Endtabelle).",
-    "2X": "Zweiter der Gruppe X.",
-    "3<set>": "Bester Gruppendritter aus dem angegebenen Gruppenset, z.B. 3ABCDF = bester Dritter aus {A,B,C,D,F}.",
     "Wnn": "Sieger des Spiels nn (rekursiv aus knockout[]).",
     "Lnn": "Verlierer des Spiels nn (nur Spiel um Platz 3).",
-    "resolveNote": "Solange ein vorgelagertes Spiel kein Resultat hat, bleibt der Folgeslot 'offen/projiziert' und ist als Projektion zu kennzeichnen.",
-    "thirdPlaceSlots": {
-      "74": "3ABCDF", "77": "3CDFGH", "79": "3CEFHI", "80": "3EHIJK",
-      "81": "3BEFIJ", "82": "3AEHIJ", "85": "3EFGIJ", "87": "3DEIJL"
-    },
-    "thirdPlaceMatrix": {
-      "advancing": 8,
-      "ofThirds": 12,
-      "combinations": 495,
-      "rule": "FIFA legt per offizieller Zuordnungstabelle fest, welcher der 8 qualifizierten Dritten gegen welchen Gruppensieger spielt - abhaengig davon, welche 8 der 12 Gruppendritten weiterkommen (C(12,8)=495 Kombinationen).",
-      "runtime": "Zur Laufzeit aufloesen: (1) Drittplatziertentabelle aller 12 Gruppen ranken, (2) beste 8 bestimmen, (3) offizielle 495er-Permutationstabelle anwenden, um die 8 Slots oben den Spielen 74/77/79/80/81/82/85/87 zuzuordnen.",
-      "fallback": "Wenn nicht eindeutig aufloesbar: 'bester Dritter (offen)' anzeigen, KEIN Team raten.",
-      "officialSource": "en.wikipedia.org/wiki/2026_FIFA_World_Cup_knockout_stage (Abschnitt 'Combinations of matches in the round of 32')"
-    }
+    "resolveNote": "home/away tragen echte FIFA-Codes, sobald die Paarung feststeht. Solange ein vorgelagertes Spiel offen ist, bleibt der Folgeslot als Wnn/Lnn und wird als offen/provisorisch angezeigt.",
+    "thirdPlaceActual": { "74": "PAR", "77": "SWE", "79": "ECU", "80": "COD", "81": "BIH", "82": "SEN", "85": "ALG", "87": "GHA" }
   },
 
-  "swissScenarios": {
-    "team": "SUI",
-    "group": "B",
-    "asOf": "2026-06-22",
-    "standingsAfterMD2": [
-      { "code": "CAN", "pts": 4, "gf": 7, "ga": 1, "gd": 6 },
-      { "code": "SUI", "pts": 4, "gf": 5, "ga": 2, "gd": 3 },
-      { "code": "BIH", "pts": 1, "gf": 2, "ga": 5, "gd": -3 },
-      { "code": "QAT", "pts": 1, "gf": 1, "ga": 7, "gd": -6 }
+  "swissState": {
+    "asOf": "2026-07-03",
+    "status": "Achtelfinale erreicht",
+    "path": [
+      { "phase": "group", "note": "Sieger Gruppe B (7 Pkt): 1:1 Katar, 4:1 Bosnien, 2:1 Kanada" },
+      { "phase": "r32", "game": 85, "note": "2:0 vs Algerien in Vancouver (Embolo 10', Ndoye 49')" },
+      { "phase": "r16", "game": 96, "note": "Di 07.07. 13:00 Ortszeit, BC Place Vancouver, vs Sieger Kolumbien/Ghana" }
     ],
-    "decider": { "match": "SUI vs CAN", "date": "2026-06-24", "venue": "bcplace", "timeMESZ": "21:00",
-                 "note": "Direktes Duell um Platz 1/2. Beide stehen vor MD3 sehr gut da; BIH/QAT koennen maximal 4 Punkte erreichen." },
-    "projections": [
-      { "if": "SUI gewinnt vs CAN",  "then": "1B (Gruppensieger, GD-Vorsprung wird groesser)", "r32Game": 85, "r32Venue": "bcplace", "r32Date": "2026-07-02", "r32Opponent": "3EFGIJ", "flag": "projiziert" },
-      { "if": "SUI spielt unentschieden", "then": "wahrscheinlich 2B (CAN fuehrt bei Tordifferenz)", "r32Game": 73, "r32Venue": "sofi", "r32Date": "2026-06-28", "r32Opponent": "2A", "flag": "projiziert" },
-      { "if": "SUI verliert vs CAN", "then": "meist weiterhin 2B dank GD-Polster (+3); Restrisiko Gruppendritter, falls BIH oder QAT hoch gewinnt", "r32Game": 73, "r32Venue": "sofi", "r32Date": "2026-06-28", "r32Opponent": "2A", "flag": "projiziert" }
-    ],
-    "note": "Projektionen, keine Fakten. Erst nach MD3-Resultaten verbindlich."
+    "bracketAhead": { "qf": 100, "sf": 102, "final": 104, "third": 103 }
   },
 
   "flightFacts": {
@@ -348,7 +326,7 @@ window.FIXTURES = {
       "levis": "SJC", "nrg": "IAH", "lincoln": "PHL", "mercedes": "ATL", "lumen": "SEA",
       "hardrock": "MIA", "gillette": "BOS", "bcplace": "YVR", "bbva": "MTY", "akron": "GDL", "bmo": "YYZ"
     },
-    "note": "Direktflug-Erreichbarkeit (a) vom Startflughafen ZRH und (b) zwischen Spielorten zur Laufzeit ueber Flug-API/Deeplink berechnen. Hier nur die Flughafen-Anker als Fakten; keine Flugzeiten/Airlines geraten.",
+    "note": "Preise = geschaetzte Last-Minute-Spannen (Economy, 1 Person, Stand 03.07.2026, WM-Hochsaison). Live-Preise ueber die Deeplinks pruefen.",
     "deeplinkTemplate": "https://www.google.com/travel/flights?q=Flights%20to%20{destIATA}%20from%20{originIATA}%20on%20{date}"
   }
 }

@@ -3,78 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WM 2026 — Reise & Stadien</title>
-  <link rel="preconnect" href="https://unpkg.com" />
+  <title>Nati on Tour — WM 2026</title>
+  <meta name="description" content="Schweiz an der WM 2026 — Reiseplaner: Achtelfinale Vancouver, Flüge, Weiterreise, Turnierbaum." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="app-header">
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
     <div class="brand">
-      <span class="logo">⚽</span>
+      <span class="brand-badge"><img src="https://flagcdn.com/w40/ch.png" alt="CH" /></span>
       <div>
-        <h1>WM 2026 — Reise &amp; Stadien</h1>
-        <p class="sub" id="contextLine">USA · Kanada · Mexiko</p>
+        <h1>NATI <span class="thin">ON TOUR</span></h1>
+        <p class="brand-sub" id="asOfLine">WM 2026 · USA · Kanada · Mexiko</p>
       </div>
     </div>
-    <div class="header-controls">
-      <label class="switch" title="Blendet die Schweiz-Hervorhebung aus und schlägt pro Tag das attraktivste erreichbare Spiel vor">
-        <input type="checkbox" id="swissOutToggle" />
-        <span class="switch-track"><span class="switch-thumb"></span></span>
-        <span class="switch-label">Schweiz&nbsp;raus</span>
-      </label>
-      <button class="btn" id="mergeBtn" title="Resultate von Wikipedia aktualisieren">↻ Resultate</button>
+    <div class="topbar-actions">
+      <button class="btn ghost" id="mergeBtn" title="Resultate live von Wikipedia aktualisieren">↻ <span class="hide-sm">Aktualisieren</span></button>
     </div>
   </header>
 
-  <nav class="tabs" id="tabs">
-    <button class="tab active" data-view="map">Karte</button>
-    <button class="tab" data-view="stadiums">Stadien</button>
-    <button class="tab" data-view="groups">Gruppen</button>
-    <button class="tab" data-view="knockout">K.o.</button>
-    <button class="tab" data-view="schweiz" id="schweizTab">🇨🇭 Schweiz</button>
-    <button class="tab" data-view="reise">Reise</button>
-    <button class="tab" data-view="suggest" id="suggestTab" hidden>Tagesvorschläge</button>
+  <nav class="nav" id="nav">
+    <button class="nav-btn active" data-view="trip"><span class="nav-ic">✈️</span> Mein Trip</button>
+    <button class="nav-btn" data-view="bracket"><span class="nav-ic">🏆</span> Turnierbaum</button>
+    <button class="nav-btn" data-view="map"><span class="nav-ic">🗺️</span> Karte</button>
   </nav>
 
   <main id="main">
-    <!-- KARTE -->
-    <section class="view" id="view-map">
-      <div class="map-wrap">
-        <div id="map"></div>
-        <div id="mapFallback" class="map-fallback" hidden></div>
-      </div>
-      <aside class="panel" id="timelinePanel">
-        <div class="panel-empty" id="timelineEmpty">
-          <p>📍 Stadion auf der Karte wählen</p>
-          <p class="muted">Zeigt die komplette Belegungs-Timeline — alle Spiele an diesem Ort.</p>
-        </div>
-        <div id="timelineContent" hidden></div>
-      </aside>
+    <section class="view" id="view-trip"></section>
+
+    <section class="view" id="view-bracket" hidden></section>
+
+    <section class="view" id="view-map" hidden>
+      <div id="map"></div>
+      <p class="map-note">Nur noch stattfindende Spiele · <span class="route-chip">— rote Route = möglicher Weg der Nati</span></p>
     </section>
-
-    <!-- STADIEN -->
-    <section class="view" id="view-stadiums" hidden></section>
-
-    <!-- GRUPPEN -->
-    <section class="view" id="view-groups" hidden></section>
-
-    <!-- K.O. -->
-    <section class="view" id="view-knockout" hidden></section>
-
-    <!-- SCHWEIZ (Sechzehntelfinal-Szenarien je nach Gruppenplatz) -->
-    <section class="view" id="view-schweiz" hidden></section>
-
-    <!-- REISE (gekettete Route zum Finale) -->
-    <section class="view" id="view-reise" hidden></section>
-
-    <!-- VORSCHLÄGE -->
-    <section class="view" id="view-suggest" hidden></section>
   </main>
 
   <div id="toast" class="toast" hidden></div>
 
-  <!-- Daten als globales Objekt (file:// tauglich); fixtures.json bleibt kanonische Quelle -->
   <script src="data/fixtures.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/data.js"></script>
