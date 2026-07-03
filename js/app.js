@@ -39,7 +39,7 @@
   // Anreise ZRH→YVR am So 05.07.2026 (frühester Abflug: Nachmittag)
   const OUTBOUND = [
     { airline: "Edelweiss", tag: "Direktflug · Empfohlen", best: true, dep: "13:00", from: "ZRH", arr: "14:15", to: "YVR", dur: "10 h 15", stops: "nonstop", price: "CHF 950–1450", note: "Einziger Nonstop ZRH→YVR (5×/Woche, So ✓). Abflug am Nachmittag — genau wie gewünscht. Ankunft So-Nachmittag: ganzer Montag als Puffer.", date: "2026-07-05" },
-    { airline: "Icelandair", tag: "Günstigste Option", dep: "14:00", from: "ZRH", arr: "18:35", to: "YVR", dur: "13 h 35", stops: "1 Stopp (KEF)", price: "CHF 650–950", note: "Nachmittagsabflug ✓, kurzer Umstieg in Reykjavík. Meist die tiefsten Last-Minute-Preise.", date: "2026-07-05" },
+    { airline: "Icelandair", tag: "Günstigste Option", dep: "14:00", from: "ZRH", arr: "18:35", to: "YVR", dur: "13 h 35", stops: "1 Stopp (KEF)", price: "CHF 650–950", note: "Nachmittagsabflug ✓, kurzer Umstieg in Reykjavík. Meist die tiefsten Last-Minute-Preise — und der Schlüssel zur Island-Kombi (siehe unten 🇮🇸).", date: "2026-07-05" },
     { airline: "Air Canada / Lufthansa", tag: "Viele Abflüge", dep: "12:55", from: "ZRH", arr: "17:30", to: "YVR", dur: "13 h 35", stops: "1 Stopp (FRA/MUC)", price: "CHF 800–1150", note: "Mehrere Verbindungen ab Mittag, robust bei Umbuchungen (grosse Allianz).", date: "2026-07-05" },
     { airline: "KLM", tag: "Alternative", dep: "12:25", from: "ZRH", arr: "16:50", to: "YVR", dur: "13 h 25", stops: "1 Stopp (AMS)", price: "CHF 750–1050", note: "Knapp vor Nachmittag — nur falls 12:25 noch okay ist.", date: "2026-07-05" },
     { airline: "Condor", tag: "Budget-Direktflug ab FRA", dep: "13:20", from: "FRA", arr: "15:05", to: "YVR", dur: "10 h 45", stops: "nonstop", price: "€ 550–900", note: "Direktflug ab Frankfurt — Anreise per Zug ab St. Gallen/Zürich (~4 h). Oft deutlich günstiger als ZRH nonstop.", date: "2026-07-05" }
@@ -58,6 +58,10 @@
     "EWR-SJO": { dur: "5 h 30", stops: "nonstop (United)", price: "CHF 300–500" },
     "MIA-SJO": { dur: "3 h", stops: "nonstop", price: "CHF 250–420" }
   };
+
+  // Erreichbarkeits-Floor: Ankunft So 05.07. abends -> erst Spiele ab Montag 06.07.
+  // sind als Reiseziel relevant (gilt fuer Plan B, Party, Karte, "sonst noch hier").
+  const TRAVEL_START = "2026-07-06";
 
   let state = { view: "trip", map: null, mapInit: false, cdTimer: null };
   const $ = s => document.querySelector(s);
@@ -226,6 +230,9 @@
       v.appendChild(el("div", "section-title", "🚀 <span>Wenn die Nati <span class='em'>gewinnt</span></span> <span class='sub'>der Weg bis ins Finale — Anschlussflüge ohne Stress, mit Ausflugtipps</span>"));
       v.appendChild(journey(st));
     }
+
+    // ---- Alternative: Island-Kombi
+    v.appendChild(icelandSection(st));
 
     // ---- Party-Button
     v.appendChild(partySection(st));
@@ -417,12 +424,78 @@
     const k = eng().resolveKnockout();
     const now = Date.now();
     return store().data.knockout
-      .filter(g => g.venue === venueId && g.game !== exceptGame && kickoffUTC(g) > now && !store().knockoutResult(g.game).result)
+      .filter(g => g.venue === venueId && g.game !== exceptGame && kickoffUTC(g) > now && g.date >= TRAVEL_START && !store().knockoutResult(g.game).result)
       .map(g => {
         const h = sideCand(g, "home", k), a = sideCand(g, "away", k);
         const hn = h.code ? team(h.code).name : "offen", an = a.code ? team(a.code).name : "offen";
         return fmtWhen(g) + " " + PHASE_LABEL[g.phase] + " (" + hn + " – " + an + ")";
       });
+  }
+
+  // ------------------------------------------------------ Island-Kombi 🇮🇸
+  // Alternative Gesamtreise: Hinflug via Island, Rueckflug via Island mit
+  // ~8 Tagen Aufenthalt, danach zurueck nach Zuerich. Rueckflug-Startort
+  // haengt dynamisch davon ab, wie weit die Nati kommt.
+  const KEF_GATEWAYS = ["EWR", "JFK", "BOS", "SEA", "YVR", "DEN", "ORD", "IAD", "MCO", "MSP"];
+  function icelandSection(st) {
+    const wrap = el("div", null);
+    wrap.appendChild(el("div", "section-title",
+      "🇮🇸 <span>Alternative: die <span class='em'>Island-Kombi</span></span> <span class='sub'>hin über Island · zurück über Island mit 8 Tagen Aufenthalt · dann Zürich</span>"));
+
+    // Rückflug-Startort: letzte Station des Nati-Pfads (bzw. aktueller Standort nach Ausscheiden)
+    const chain = st.next ? [st.next.g].concat(st.path) : st.path;
+    const lastS = chain.length ? stadium(chain[chain.length - 1]) : null;
+    const retFrom = st.eliminated ? baseAirport(st) : (lastS ? lastS.airport : "YVR");
+    const retCity = st.eliminated ? "aktuellem Standort" : (lastS ? lastS.metro : "Vancouver");
+    const gateway = KEF_GATEWAYS.indexOf(retFrom) !== -1;
+    const retLegNote = gateway
+      ? "Icelandair fliegt ab " + esc(retCity) + " nonstop nach Keflavík (~5–6 h)."
+      : "Ab " + esc(retCity) + " kurzer Zubringer nach New York/Boston, dann Icelandair nonstop nach Keflavík.";
+    // Daten dynamisch: Abflug = Tag nach dem letzten (möglichen) Nati-Spiel, Heimflug = +8 Tage
+    const lastDate = st.eliminated ? store().todayStr() : (chain.length ? chain[chain.length - 1].date : store().todayStr());
+    const retDate = nextDay(lastDate);
+    let homeDate = retDate;
+    for (let i = 0; i < 8; i++) homeDate = nextDay(homeDate);
+
+    // Routen-Übersicht
+    const route = el("div", "hero-path", null);
+    ["ZRH", "KEF ✈", "YVR · WM 🏟", retFrom + " → KEF", "🇮🇸 8 Tage Island", "ZRH 🏁"].forEach((s, i) => {
+      route.appendChild(el("span", "path-step" + (i === 4 ? " now" : ""), s));
+    });
+    wrap.appendChild(route);
+
+    const grid = el("div", "planb-grid");
+
+    const c1 = el("div", "card planb-card");
+    c1.innerHTML = "<div class='pb-head'><h4>1 · Hinweg — So 05.07.</h4><span class='chip blue'>Icelandair</span></div>" +
+      "<p class='small muted'>ZRH 14:00 → KEF 15:45 → YVR 18:35 Ortszeit. Nachmittagsabflug ✓, Ankunft am Sonntagabend — Montag bleibt als Puffer vor dem Achtelfinale.</p>" +
+      "<p class='pb-flight'>✈ ZRH → (KEF) → YVR · 13 h 35 · <b>CHF 650–950</b> <span class='muted'>· als Teil des Kombi-Tickets oft günstiger</span></p>";
+    c1.appendChild(Object.assign(el("a", "btn sm ghost", "Hinflug prüfen"), { href: flightLink("ZRH", "YVR", "2026-07-05"), target: "_blank", rel: "noopener" }));
+    grid.appendChild(c1);
+
+    const c2 = el("div", "card planb-card cr");
+    c2.innerHTML = "<div class='pb-head'><h4>2 · Island-Stopover — 8 Tage</h4><span class='chip green'>Juli = beste Reisezeit</span></div>" +
+      "<p class='small muted'>" + retLegNote + " Icelandair erlaubt den <b>Stopover ohne grossen Flugaufpreis</b> — du zahlst quasi nur Unterkunft & Mietwagen.</p>" +
+      "<ul class='tips'>" +
+      "<li>Golden Circle: Þingvellir, Geysir, Gullfoss (Tag 1–2)</li>" +
+      "<li>Südküste: Seljalandsfoss, Skógafoss, schwarzer Strand Reynisfjara, Gletscherlagune Jökulsárlón (Tag 3–5)</li>" +
+      "<li>Snæfellsnes-Halbinsel oder Westfjorde — oder sportlich: die ganze Ringstrasse in 8 Tagen (Mietwagen)</li>" +
+      "<li>Blaue Lagune / Sky Lagoon zum Abschluss + Mitternachtssonne den ganzen Juli</li>" +
+      "</ul>" +
+      "<p class='pb-flight'>✈ " + retFrom + " → KEF · ~5–6 h · <b>CHF 350–550</b> <span class='muted'>· Island-Budget: Unterkunft/Mietwagen deutlich über US-Niveau einplanen</span></p>";
+    c2.appendChild(Object.assign(el("a", "btn sm gold", "Flug nach Island (" + retDate.split("-").reverse().slice(0, 2).join(".") + ".)"), { href: flightLink(retFrom, "KEF", retDate), target: "_blank", rel: "noopener" }));
+    grid.appendChild(c2);
+
+    const c3 = el("div", "card planb-card");
+    c3.innerHTML = "<div class='pb-head'><h4>3 · Heimweg</h4><span class='chip'>KEF → ZRH</span></div>" +
+      "<p class='small muted'>Nach 8 Tagen Island entspannt zurück in die Schweiz — nonstop, nur knapp 4 Stunden.</p>" +
+      "<p class='pb-flight'>✈ KEF → ZRH · 3 h 45 · nonstop (Icelandair) · <b>CHF 180–350</b></p>" +
+      "<p class='pb-flight'>Σ <b>Kombi gesamt (alle Flüge): ~CHF 1500–2200</b> <span class='muted'>· statt Costa Rica — oder danach: SJO bleibt als Plan B unten bestehen</span></p>";
+    c3.appendChild(Object.assign(el("a", "btn sm ghost", "Heimflug prüfen (" + homeDate.split("-").reverse().slice(0, 2).join(".") + ".)"), { href: flightLink("KEF", "ZRH", homeDate), target: "_blank", rel: "noopener" }));
+    grid.appendChild(c3);
+
+    wrap.appendChild(grid);
+    return wrap;
   }
 
   // ------------------------------------------------------------ Party 🎉
@@ -451,6 +524,7 @@
     store().data.knockout.forEach(g => {
       if (store().knockoutResult(g.game).result) return;
       if (kickoffUTC(g) <= now) return;
+      if (g.date < TRAVEL_START) return; // vor Montag nicht erreichbar
       const h = sideCand(g, "home", k), a = sideCand(g, "away", k);
       const codesH = h.code ? [h.code] : (h.codes || []);
       const codesA = a.code ? [a.code] : (a.codes || []);
@@ -519,6 +593,7 @@
     const byVenue = {};
     store().data.knockout.forEach(g => {
       if (store().knockoutResult(g.game).result || kickoffUTC(g) <= now) return;
+      if (g.date < TRAVEL_START) return; // vor Montag nicht erreichbar
       const h = sideCand(g, "home", k), a = sideCand(g, "away", k);
       if ((h.code === "SUI" || a.code === "SUI") && !st.eliminated) return; // eigene Spiele stehen oben
       (byVenue[g.venue] = byVenue[g.venue] || []).push(g);
@@ -642,10 +717,11 @@
     const now = Date.now();
     const st = swissStatus();
 
-    // kommende Spiele je Stadion
+    // kommende, erreichbare Spiele je Stadion (ab Montag 06.07.)
     const byVenue = {};
     store().data.knockout.forEach(g => {
       if (store().knockoutResult(g.game).result || kickoffUTC(g) <= now) return;
+      if (g.date < TRAVEL_START) return;
       (byVenue[g.venue] = byVenue[g.venue] || []).push(g);
     });
 
